@@ -25,10 +25,21 @@ if __name__ == '__main__':
     rospy.loginfo("result is %s", result)
 
     # send second goal
-    goal.target = "WayPoint5"
+    goal.target = "WayPoint3"
     # Fill in the goal here
     client.send_goal(goal)
     status = client.wait_for_result() # wait until the action is complete
     result = client.get_result()
     rospy.loginfo("status is %s", status)
     rospy.loginfo("result is %s", result)
+
+    # send new goal
+    goal.target = "WayPoint6"
+    # Fill in the goal here
+    client.send_goal(goal)
+    status = client.wait_for_result() # wait until the action is complete
+    result = client.get_result()
+    rospy.loginfo("status is %s", status)
+    rospy.loginfo("result is %s", result)
+
+
