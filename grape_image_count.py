@@ -67,9 +67,7 @@ print(f"Number of grape bunches: {count}")
 # plt.title(f"Number of grapes: {count}")
 # plt.axis('off')
 # plt.show()
-
-
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+# cv2.waitKey(0)
+# cv2.destroyAllWindows()
 
 
