@@ -20,7 +20,7 @@ class grape_counter:
         # --- import the grapes image and convert to HSV ---
         cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
 	# apply blur to image
-	frame = cv2.GaussianBlur(cv_image, (3, 3), 0)
+        frame = cv2.blur(cv_image, (9, 9))
 	# convert BGR to HSV for filtering
 	hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -30,10 +30,11 @@ class grape_counter:
 	upper_blue = np.array([235, 255, 255])
 	# threshold the image to get only the colour of the grapes
 	mask_blue = cv2.inRange(hsv, lower_blue, upper_blue)
-	# extract the grapes from the image
-	result = cv2.bitwise_and(cv_image, cv_image, mask=mask_blue)
+	# closing: dilation followed by erosion to close small gaps in the grape bunch
+        kernel = np.ones((9,9), np.uint8)
+        closing = cv2.morphologyEx(mask_blue, cv2.MORPH_CLOSE, kernel)
 	# invert the mask to use it for contouring
-	mask_inv = 255 - mask_blue
+	mask_inv = 255 - closing
 
 	# --- grape detection ---
 	# establish minimum area for a grape bunch
@@ -45,7 +46,7 @@ class grape_counter:
 	image_rgb = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
 	# get the contours using the mask from colour filtering
 	contours, hierarchy = cv2.findContours(mask_inv, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2:]
-	cv2.drawContours(cv_image, contours, -1, (255, 0, 0), 1)
+	cv2.drawContours(cv_image, contours, -1, (0, 0, 255), 1)
 
 	# --- grape bunch counting ---
 	# iterate through the list of contours
@@ -68,13 +69,13 @@ class grape_counter:
 	print(result_statement)
 
 	# uncomment to display the colour mask, contours and detected grape bunches
-        cv2.imshow("Colour thresholding", mask_blue)
-        cv2.imshow("Contours", mask_blue)
+        cv2.imshow("Colour thresholding", closing)
+        cv2.imshow("Contours", cv_image)
         cv2.imshow("Results", image_rgb)
-	cv2.waitKey(1)
+	cv2.waitKey(0)
 
 
-cv2.startWindowThread()
+# cv2.startWindowThread()
 rospy.init_node('grape_counter')
 gc = grape_counter()
 rospy.spin()		
