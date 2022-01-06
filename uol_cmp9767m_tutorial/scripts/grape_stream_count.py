@@ -12,9 +12,12 @@ from cv_bridge import CvBridge
 class grape_counter:
 
     def __init__(self):
-
+        # subscribe to the image topic
         self.bridge = CvBridge()
         self.image_sub = rospy.Subscriber("/thorvald_001/kinect2_right_camera/hd/image_color_rect", Image, self.image_callback)
+        # initialise variables to be outputted
+        self.count = 0
+        self.found_grapes = False
 
     def image_callback(self, data):
         # --- import the grapes image and convert to HSV ---
@@ -39,9 +42,6 @@ class grape_counter:
 	# --- grape detection ---
 	# establish minimum area for a grape bunch
 	min_area = 150
-	# initialise variables to be outputted
-	found_grapes = False
-	count = 0
 	# convert from BGR to RGB for plotting
 	image_rgb = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
 	# get the contours using the mask from colour filtering
@@ -55,30 +55,33 @@ class grape_counter:
 	    if hierarchy[0][i][3] >= 0:
 	    # if the contour is larger than the minimum area for a grape bunch
 	        if cv2.contourArea(contour) >= min_area:
-		    found_grapes = True
+		    self.found_grapes = True
 		    grape_contour = contour
 		    # Get the coordinates of the grape centre
 		    M = cv2.moments(grape_contour)
 		    cx = int(M['m10'] / M['m00'])
 		    cy = int(M['m01'] / M['m00'])
-		    count += 1
+		    self.count += 1
 		    # Plot the grape centre point
 		    cv2.circle(image_rgb, (cx, cy), 4, (255, 0, 0), -1)
-        result_statement = "Number of grape bunches: " + str(count)
-	print("Grapes detected: " + str(found_grapes))
+        result_statement = "Number of grape bunches: " + str(self.count)
+	print("Grapes detected: " + str(self.found_grapes))
 	print(result_statement)
 
+        # sleep for 10s
+        rospy.Rate(0.1).sleep()
+
 	# uncomment to display the colour mask, contours and detected grape bunches
-        cv2.imshow("Colour thresholding", closing)
-        cv2.imshow("Contours", cv_image)
-        cv2.imshow("Results", image_rgb)
-	cv2.waitKey(0)
+        # cv2.imshow("Colour thresholding", closing)
+        # cv2.imshow("Contours", cv_image)
+        # cv2.imshow("Results", image_rgb)
+	# cv2.waitKey(0)
 
 
 # cv2.startWindowThread()
 rospy.init_node('grape_counter')
 gc = grape_counter()
 rospy.spin()		
-cv2.destroyAllWindows()
+# cv2.destroyAllWindows()
 
 
