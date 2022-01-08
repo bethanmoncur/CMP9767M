@@ -89,11 +89,10 @@ class grape_counter:
 		    cx = int(M['m10'] / M['m00'])
 		    cy = int(M['m01'] / M['m00'])
 		    image_coords = (cy, cx)
-		    # self.count += 1
 		    # plot the grape centre point
-		    # cv2.circle(image_rgb, (cx, cy), 4, (255, 0, 0), -1)
+		    cv2.circle(image_rgb, (cx, cy), 4, (255, 0, 0), -1)
 		    
-		    # --- find depth of grape centre and convert to map coordinates---
+		    # --- find depth of grape centre ---
 		    # ratio between cameras calculated as (color_horizontal_FOV/color_width) / (depth_horizontal_FOV/depth_width) from the kinectv2 urdf file
 		    colour_depth_ratio = (84.1/1920) / (70.0/512)
 		    # find the corresponding pixels in the depth image using .shape which returns rows (y), columns (x)
@@ -113,14 +112,12 @@ class grape_counter:
                     # if centroid of grape not detected, set depth value to 2
                     if np.isnan(depth_value):
                         depth_value = 2
+                        
                     # --- image to world re-projection ---
                     #project the image coords (x,y) into 3D ray in camera coords
                     camera_coords = self.camera_model.projectPixelTo3dRay((image_coords[1], image_coords[0]))
                     # normalize the vector by z (camera_coords[2]) and then multiply by depth  
                     camera_coords = [(i*depth_value)/camera_coords[2] for i in camera_coords]
-                    # print 'image coords: ', image_coords
-                    # print 'depth coords: ', depth_coords
-                    # print 'depth value: ', depth_value
                     # define the grape centroid in camera coordinates
                     grape_location = PoseStamped()
                     grape_location.header.frame_id = "thorvald_001/kinect2_right_rgb_optical_frame"
@@ -130,51 +127,43 @@ class grape_counter:
                     grape_location.pose.position.z = camera_coords[2]
                     # transform the grape centroid from camera to map coordinates using tf and get its position 
                     grape_map_centroid = self.tf_listener.transformPose('map', grape_location)
+                    
+                    # --- avoiding double counting of grape bunches ---
                     # round the coordinates to 1dp to check if it has already been counted
                     grape_map_x = round(grape_map_centroid.pose.position.x, 3)
                     grape_map_y = round(grape_map_centroid.pose.position.y, 3)
                     grape_map_z = round(grape_map_centroid.pose.position.z, 3)
                     grape_map_coords = [grape_map_x, grape_map_y, grape_map_z]
-                    # print 'Camera coords: ', camera_coords
-                    # print 'Map coords: ', grape_map_coords
-                    # publish so we can see that in rviz
+                    # publish the grape location so it can be viewed in rviz
                     self.grape_location_pub.publish(grape_location)
                     # check if the grape has already been counted and if not, increase count by 1
-                    #if grape_map_coords not in self.counted_grape_coords:
-                        #self.counted_grape_coords.append(grape_map_coords)
-                        ## plot the grape centre point
-                       # cv2.circle(image_rgb, (cx, cy), 4, (255, 0, 0), -1)
-                       # print 'Map coords: ', grape_map_coords
-                       # self.count += 1
                     new_grape_detected = True
                     if len(self.counted_grape_coords) == 0:
+                        # if no grapes have been detected yet, add the grape coordinates to keep track of its location and increase count by 1
                         self.counted_grape_coords.append(grape_map_coords)
-                        # plot the grape centre point
-                        cv2.circle(image_rgb, (cx, cy), 4, (255, 0, 0), -1)
-                        print 'Map coords: ', grape_map_coords
+                        #print 'Map coords: ', grape_map_coords
                         self.count += 1
                         new_grape_detected = False
                     else:
                         for counted_grape in self.counted_grape_coords:
+                            # set a threshold for the closest distance to start counting the contour as a new grape
                             proximity_threshold = 0.15
+                            # if the contour is within the threshold for x, y and z do not count it as a new grape
                             if (abs(grape_map_coords[0] - counted_grape[0]) < proximity_threshold) and (abs(grape_map_coords[1] - counted_grape[1]) < proximity_threshold) and (abs(grape_map_coords[2] - counted_grape[2]) < proximity_threshold):
                                 new_grape_detected = False
                     if new_grape_detected:
+                        # add the grape coordinates to keep track of its location and increase count by 1
                         self.counted_grape_coords.append(grape_map_coords)
-                        # plot the grape centre point
-                        cv2.circle(image_rgb, (cx, cy), 4, (255, 0, 0), -1)
-                        print 'Map coords: ', grape_map_coords
+                        #print 'Map coords: ', grape_map_coords
                         self.count += 1
 
-        result_statement = "Number of grape bunches: " + str(self.count)
-	print 'Grapes detected: ' + str(self.found_grapes)
-	print result_statement
+        print 'Number of grape bunches: ', self.count
 
 	# uncomment to display the colour mask, contours and detected grape bunches
-        cv2.imshow("Colour thresholding", closing)
-        cv2.imshow("Contours", cv_image)
-        cv2.imshow("Results", image_rgb)
-	cv2.waitKey(0)
+        #cv2.imshow("Colour thresholding", closing)
+        #cv2.imshow("Contours", cv_image)
+        #cv2.imshow("Results", image_rgb)
+	#cv2.waitKey(0)
 
 
 
