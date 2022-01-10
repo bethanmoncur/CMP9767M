@@ -3,14 +3,16 @@
 <launch>
 
   <!-- Launch the vineyard simulation -->
-  <include file="$(find bacchus_gazebo)/vineyard_demo.launch">
-    <param name="world_name" value="vineyard_small"/>
+  <include file="$(find bacchus_gazebo)/launch/vineyard_demo.launch">
+    <arg name="world_name" value="vineyard_small"/> 
+  </include>
 
   <!-- Run the grape detection and counting file -->
   <node name="grape_counter" pkg="uol_cmp9767m_tutorial" type="grape_track.py"/>
 
-  <!-- Run the navigation goal setting file -->
-  <node name="topological_navigation_client" pkg="uol_cmp9767m_tutorial" type="set_grape_route_goal.py"/>
+  <!-- Launch navigation and run the navigation goal setting file -->
+  <include file="$(find uol_cmp9767m_tutorial)/launch/topo_nav.launch"/>
 
+  <node name="grape_topological_navigation" pkg="uol_cmp9767m_tutorial" type="set_grape_route_goal.py"/>
 
 </launch>
