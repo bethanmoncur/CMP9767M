@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+
+<launch>
+
+  <!-- Launch the vineyard simulation -->
+  <include file="$(find bacchus_gazebo)/vineyard_demo.launch">
+    <param name="world_name" value="vineyard_small"/>
+
+  <!-- Run the grape detection and counting file -->
+  <node name="grape_counter" pkg="uol_cmp9767m_tutorial" type="grape_track.py"/>
+
+  <!-- Run the navigation goal setting file -->
+  <node name="topological_navigation_client" pkg="uol_cmp9767m_tutorial" type="set_grape_route_goal.py"/>
+
+
+</launch>
