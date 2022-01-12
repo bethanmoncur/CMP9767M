@@ -9,9 +9,11 @@ import rospy
 import actionlib
 
 from topological_navigation.msg import GotoNodeAction, GotoNodeGoal
+from std_msgs.msg import String
 
 if __name__ == '__main__':
     rospy.init_node('grape_topological_navigation')
+    pub = rospy.Publisher('navigation_control', String, queue_size=10)
     client = actionlib.SimpleActionClient('/thorvald_001/topological_navigation', GotoNodeAction)
     client.wait_for_server()
 
@@ -23,6 +25,7 @@ if __name__ == '__main__':
     result = client.get_result()
     rospy.loginfo("status is %s", status)
     rospy.loginfo("result is %s", result)
+    pub.publish(str(goal.target) + str(',') + str(result))
 
     # send second goal
     goal.target = "WayPoint2"
@@ -32,6 +35,7 @@ if __name__ == '__main__':
     result = client.get_result()
     rospy.loginfo("status is %s", status)
     rospy.loginfo("result is %s", result)
+    pub.publish(str(goal.target) + str(',') + str(result))
 
     # send third goal
     goal.target = "WayPoint4"
@@ -41,6 +45,7 @@ if __name__ == '__main__':
     result = client.get_result()
     rospy.loginfo("status is %s", status)
     rospy.loginfo("result is %s", result)
+    pub.publish(str(goal.target) + str(',') + str(result))
 
     # send fourth goal
     goal.target = "WayPoint5"
@@ -50,6 +55,7 @@ if __name__ == '__main__':
     result = client.get_result()
     rospy.loginfo("status is %s", status)
     rospy.loginfo("result is %s", result)
+    pub.publish(str(goal.target) + str(',') + str(result))
 
     # send fourth goal
     goal.target = "WayPoint0"
@@ -59,5 +65,6 @@ if __name__ == '__main__':
     result = client.get_result()
     rospy.loginfo("status is %s", status)
     rospy.loginfo("result is %s", result)
+    pub.publish(str(goal.target) + str(',') + str(result))
 
 
