@@ -22,7 +22,7 @@ class grape_counter:
         self.camera_info_sub = rospy.Subscriber('/thorvald_001/kinect2_right_camera/hd/camera_info', CameraInfo, self.camera_info_callback)
         self.depth_sub = rospy.Subscriber("/thorvald_001/kinect2_right_sensor/sd/image_depth_rect", Image, self.image_depth_callback)
         self.tf_listener = tf.TransformListener()
-        self.grape_location_pub = rospy.Publisher('/thorvald_001/grape_location', PoseStamped, queue_size=10)
+        # self.grape_location_pub = rospy.Publisher('/thorvald_001/grape_location', Image, queue_size=10)
         self.grape_count_pub = rospy.Publisher('grape_count', Int32, queue_size=30)
         # initialise variables 
         self.camera_model = None
@@ -108,7 +108,9 @@ class grape_counter:
 		        cy = int(M['m01'] / M['m00'])
 		        image_coords = (cy, cx)
 		        # plot the grape centre point
-		        cv2.circle(image_rgb, (cx, cy), 4, (255, 0, 0), -1)
+		        cv2.circle(image_rgb, (cx, cy), 4, (0, 0, 255), -1)
+                        # publish the grape location so it can be viewed in rviz
+                        # self.grape_location_pub.publish(self.bridge.cv2_to_imgmsg(image_rgb))
 		    
 		        # --- find depth of grape centre ---
 		        # ratio between cameras calculated as (color_horizontal_FOV/color_width) / (depth_horizontal_FOV/depth_width) from the kinectv2 urdf file
@@ -152,8 +154,7 @@ class grape_counter:
                         grape_map_y = round(grape_map_centroid.pose.position.y, 3)
                         grape_map_z = round(grape_map_centroid.pose.position.z, 3)
                         grape_map_coords = [grape_map_x, grape_map_y, grape_map_z]
-                        # publish the grape location so it can be viewed in rviz
-                        self.grape_location_pub.publish(grape_location)
+
                         # check if the grape has already been counted and if not, increase count by 1
                         new_grape_detected = True
                         if len(self.counted_grape_coords) == 0:
