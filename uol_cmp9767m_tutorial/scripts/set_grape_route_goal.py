@@ -13,7 +13,19 @@ from std_msgs.msg import String
 
 if __name__ == '__main__':
     rospy.init_node('grape_topological_navigation')
+
+    resume_navigation = True
+
+
+    def control_navigation(data):
+        if 'resume navigation' in str(data):
+            global resume_navigation 
+            resume_navigation = True
+
+
     pub = rospy.Publisher('navigation_control', String, queue_size=10)
+    sub = rospy.Subscriber('navigation_resume', String, control_navigation)
+
     client = actionlib.SimpleActionClient('/thorvald_001/topological_navigation', GotoNodeAction)
     client.wait_for_server()
 
@@ -36,7 +48,13 @@ if __name__ == '__main__':
     rospy.loginfo("status is %s", status)
     rospy.loginfo("result is %s", result)
     pub.publish(str(goal.target) + str(',') + str(result))
+    resume_navigation = False
+    rospy.loginfo("navigation paused")
 
+    while not resume_navigation:
+        rospy.Rate(1).sleep()
+
+    rospy.loginfo("navigation resumed")
     # send third goal
     goal.target = "WayPoint4"
     # Fill in the goal here
@@ -56,8 +74,14 @@ if __name__ == '__main__':
     rospy.loginfo("status is %s", status)
     rospy.loginfo("result is %s", result)
     pub.publish(str(goal.target) + str(',') + str(result))
+    resume_navigation = False
+    rospy.loginfo("navigation paused")
 
-    # send fourth goal
+    while not resume_navigation:
+        rospy.Rate(1).sleep()
+
+    rospy.loginfo("navigation resumed")
+    # send fifth goal
     goal.target = "WayPoint0"
     # Fill in the goal here
     client.send_goal(goal)

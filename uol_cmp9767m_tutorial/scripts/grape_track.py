@@ -24,12 +24,14 @@ class grape_counter:
         self.tf_listener = tf.TransformListener()
         # self.grape_location_pub = rospy.Publisher('/thorvald_001/grape_location', Image, queue_size=10)
         self.grape_count_pub = rospy.Publisher('grape_count', Int32, queue_size=30)
+        self.counting_status_pub = rospy.Publisher('counting_status', String, queue_size=10)
         # initialise variables 
         self.camera_model = None
         self.image_depth = None
         self.start_counting = False
         self.reset_counting = False
         self.count = 0
+        self.previous_count = 0
         self.found_grapes = False
         self.counted_grape_coords = []
 
@@ -64,6 +66,7 @@ class grape_counter:
             return
 
         if self.start_counting or self.reset_counting:
+            self.previous_count = self.count
             # --- import the grapes image and depth and convert image to HSV ---
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
             cv_depth = self.bridge.imgmsg_to_cv2(self.image_depth, "32FC1")
@@ -160,7 +163,7 @@ class grape_counter:
                         if len(self.counted_grape_coords) == 0:
                             # if no grapes have been detected yet, add the grape coordinates to keep track of its location and increase count by 1
                             self.counted_grape_coords.append(grape_map_coords)
-                            #print 'Map coords: ', grape_map_coords
+                            print 'Map coords: ', grape_map_coords
                             self.count += 1
                             new_grape_detected = False
                         else:
@@ -173,13 +176,15 @@ class grape_counter:
                         if new_grape_detected:
                             # add the grape coordinates to keep track of its location and increase count by 1
                             self.counted_grape_coords.append(grape_map_coords)
-                            #print 'Map coords: ', grape_map_coords
+                            print 'Map coords: ', grape_map_coords
                             self.count += 1
 
             print 'Number of grape bunches: ', self.count
+            print 'Previous count: ', self.previous_count
             # publish the number of grape bunches to the control node and reset the grape count
-            if self.reset_counting:
+            if self.reset_counting and self.previous_count == self.count:
                 self.grape_count_pub.publish(self.count)
+                self.counting_status_pub.publish('counting complete')
                 self.count = 0
                 self.counted_grape_coords = []
                 self.reset_counting = False
