@@ -65,7 +65,7 @@ class grape_control:
     def count_grapes(self, data):
         count = int(str(data).split(': ')[1])
         self.results.append(count)
-        self.average_count =  sum(self.results) / len(self.results)
+        self.average_count =  float(sum(self.results)) / float(len(self.results))
         print 'Current count: ', count
         print 'List of counts: ', self.results
         print 'Average count: ', self.average_count
