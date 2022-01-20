@@ -5,6 +5,7 @@ import rospy
 from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Point, Twist
 from std_srvs.srv import Empty
+from std_msgs.msg import String
 
 from tf.transformations import euler_from_quaternion
 from math import atan2
@@ -27,15 +28,16 @@ rospy.init_node('move_to_localise', anonymous=True)
 
 odom_sub = rospy.Subscriber('/thorvald_001/odometry/base_raw', Odometry, new_odom)
 vel_pub = rospy.Publisher('/thorvald_001/twist_mux/cmd_vel', Twist, queue_size = 1)
+localise_pub = rospy.Publisher('localisation_complete', String, queue_size = 1)
 global_localization = rospy.ServiceProxy('global_localization', Empty)
 global_localization()
 
 t = Twist()
 
-r = rospy.Rate(4)
+r = rospy.Rate(10)
 
 i = 0
-goals = [[5.0, -3.0], [-5.0, -3.0]]
+goals = [[8.0, -3.0], [0.0, 0.0], [-8.0, -3.0]]
 
 while not rospy.is_shutdown():
 
@@ -47,24 +49,32 @@ while not rospy.is_shutdown():
     dif_y = goal.y - y
     angle_to_goal = atan2(dif_y, dif_x)
     
-    if abs(dif_x) > 0.2 or abs(dif_y) > 0.2:
+    if abs(dif_x) > 1.0 or abs(dif_y) > 1.0:
     
-        if abs(angle_to_goal - theta) > 0.1:
+        if (angle_to_goal - theta) > 0.1:
             t.linear.x = 0.0
             t.angular.z = 0.3
+        elif (angle_to_goal - theta) < -0.1:
+            t.linear.x = 0.0
+            t.angular.z = -0.3
         else:
-            t.linear.x = 0.5
+            t.linear.x = 0.8
             t.angular.z = 0.0
         
         vel_pub.publish(t)
     
     else:
-        if i < (len(goals) - 1):
-            i +=1
-            
         user_input = raw_input('Has the robot successfully localised itself? [y/n] \n')
         if user_input == 'n':
             global_localization()
+            if i == len(goals) - 1:
+                i = 0
+            else:
+                i +=1
+        elif user_input == 'y':
+            localise_pub.publish('localisation complete')
+            break
+            
         
     r.sleep()
 

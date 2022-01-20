@@ -5,14 +5,23 @@
   <!-- Launch the vineyard simulation -->
   <include file="$(find bacchus_gazebo)/launch/vineyard_demo.launch">
     <arg name="world_name" value="vineyard_small"/> 
+    <arg name="nav_map_yaml" value="$(find uol_cmp9767m_tutorial)/maps/vineyard.yaml"/>
+    <arg name="fake_localisation" value="false"/>
   </include>
+
+  <!-- Launch amcl -->
+  <include file="$(find uol_cmp9767m_tutorial)/launch/amcl.launch"/>
+
+  <!-- Launch topological navigation -->
+  <include file="$(find uol_cmp9767m_tutorial)/launch/topo_nav.launch"/>
+
+  <!-- Run the control node -->
+  <node name="grape_control" pkg="uol_cmp9767m_tutorial" type="grape_control.py" output="screen"/>
 
   <!-- Run the grape detection and counting file -->
   <node name="grape_counter" pkg="uol_cmp9767m_tutorial" type="grape_track.py"/>
 
-  <!-- Launch navigation and run the navigation goal setting file -->
-  <include file="$(find uol_cmp9767m_tutorial)/launch/topo_nav.launch"/>
-
+  <!-- Run the navigation goal setting file -->
   <node name="grape_topological_navigation" pkg="uol_cmp9767m_tutorial" type="set_grape_route_goal.py"/>
 
 </launch>

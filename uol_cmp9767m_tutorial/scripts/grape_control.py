@@ -23,7 +23,7 @@ class grape_control:
         self.grape_sub =  rospy.Subscriber('grape_count', Int32, self.count_grapes)
 
         # subscribe to get status of counting to continue navigation after reset
-        self.counting_status_sub = rospy.Subscriber('counting_status', String, self.counting_status_callback)
+        self.counting_status_sub = rospy.Subscriber('counting_status', String, self.resume_nav_callback)
 
         # publish commands to the navigation goal setter to resume navigation
         self.nav_pub = rospy.Publisher('navigation_resume', String, queue_size=10)
@@ -32,9 +32,12 @@ class grape_control:
         self.results = []
         self.average_count = 0
 
+        # subscribe to get input from user about localisation
+        self.localise_sub = rospy.Subscriber('localisation_complete', String, self.resume_nav_callback)
 
-    def counting_status_callback(self, data):
-        if 'counting complete' in str(data):
+
+    def resume_nav_callback(self, data):
+        if 'counting complete' in str(data) or 'localisation complete' in str(data):
             self.nav_pub.publish('resume navigation')
 
 
@@ -57,7 +60,7 @@ class grape_control:
             self.control_pub.publish('start count')
         
         if self.current_waypoint == 'WayPoint2' or self.current_waypoint == 'WayPoint5':
-            # rospy.sleep(5.0)
+            print 'reset count'
             self.control_pub.publish('reset count')
 
 
@@ -70,7 +73,8 @@ class grape_control:
         print 'List of counts: ', self.results
         print 'Average count: ', self.average_count
 
+
 if __name__ == '__main__':
-    rospy.init_node('grape_control', anonymous=True)
+    rospy.init_node('grape_control')
     gc = grape_control()
     rospy.spin()

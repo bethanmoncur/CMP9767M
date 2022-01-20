@@ -14,7 +14,7 @@ from std_msgs.msg import String
 if __name__ == '__main__':
     rospy.init_node('grape_topological_navigation')
 
-    resume_navigation = True
+    resume_navigation = False
 
 
     def control_navigation(data):
@@ -28,6 +28,9 @@ if __name__ == '__main__':
 
     client = actionlib.SimpleActionClient('/thorvald_001/topological_navigation', GotoNodeAction)
     client.wait_for_server()
+
+    while not resume_navigation:
+        rospy.Rate(1).sleep()
 
     # send first goal
     goal = GotoNodeGoal()
