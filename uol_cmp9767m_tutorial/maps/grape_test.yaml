@@ -10,7 +10,7 @@
       map_2d: cropped
       node: WayPoint1
       recovery_behaviours_config: ''
-      top_vel: 0.8
+      top_vel: 0.55
     localise_by_topic: ''
     map: grape_route
     name: WayPoint0
@@ -57,6 +57,13 @@
       node: WayPoint2
       recovery_behaviours_config: ''
       top_vel: 0.55
+    - action: move_base
+      edge_id: WayPoint1_WayPoint6
+      inflation_radius: 0.0
+      map_2d: cropped
+      node: WayPoint6
+      recovery_behaviours_config: ''
+      top_vel: 0.55
     localise_by_topic: ''
     map: grape_route
     name: WayPoint1
@@ -97,120 +104,14 @@
   node:
     edges:
     - action: move_base
-      edge_id: WayPoint2_WayPoint3
-      inflation_radius: 0.0
-      map_2d: cropped
-      node: WayPoint3
-      recovery_behaviours_config: ''
-      top_vel: 0.55
-    - action: move_base
       edge_id: WayPoint2_WayPoint1
       inflation_radius: 0.0
       map_2d: cropped
       node: WayPoint1
       recovery_behaviours_config: ''
       top_vel: 0.55
-    localise_by_topic: ''
-    map: grape_route
-    name: WayPoint2
-    pointset: grape_route
-    pose:
-      orientation:
-        w: 1.0
-        x: 0.0
-        y: 0.0
-        z: 0.0
-      position:
-        x: -5.0
-        y: -4.5
-        z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477
-    xy_goal_tolerance: 0.3
-    yaw_goal_tolerance: 0.2
-- meta:
-    map: grape_route
-    node: WayPoint3
-    pointset: grape_route
-  node:
-    edges:
     - action: move_base
-      edge_id: WayPoint3_WayPoint4
-      inflation_radius: 0.0
-      map_2d: cropped
-      node: WayPoint4
-      recovery_behaviours_config: ''
-      top_vel: 0.55
-    - action: move_base
-      edge_id: WayPoint3_WayPoint2
-      inflation_radius: 0.0
-      map_2d: cropped
-      node: WayPoint2
-      recovery_behaviours_config: ''
-      top_vel: 0.55
-    localise_by_topic: ''
-    map: grape_route
-    name: WayPoint3
-    pointset: grape_route
-    pose:
-      orientation:
-        w: 1.0
-        x: 0.0
-        y: 0.0
-        z: 0.0
-      position:
-        x: -1.0
-        y: -4.5
-        z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477
-    xy_goal_tolerance: 0.3
-    yaw_goal_tolerance: 0.2
-- meta:
-    map: grape_route
-    node: WayPoint4
-    pointset: grape_route
-  node:
-    edges:
-    - action: move_base
-      edge_id: WayPoint4_WayPoint5
-      inflation_radius: 0.0
-      map_2d: cropped
-      node: WayPoint5
-      recovery_behaviours_config: ''
-      top_vel: 0.55
-    - action: move_base
-      edge_id: WayPoint4_WayPoint3
+      edge_id: WayPoint2_WayPoint3
       inflation_radius: 0.0
       map_2d: cropped
       node: WayPoint3
@@ -218,7 +119,7 @@
       top_vel: 0.55
     localise_by_topic: ''
     map: grape_route
-    name: WayPoint4
+    name: WayPoint2
     pointset: grape_route
     pose:
       orientation:
@@ -251,20 +152,27 @@
     yaw_goal_tolerance: 0.2
 - meta:
     map: grape_route
-    node: WayPoint5
+    node: WayPoint3
     pointset: grape_route
   node:
     edges:
     - action: move_base
-      edge_id: WayPoint5_WayPoint6
+      edge_id: WayPoint3_WayPoint2
       inflation_radius: 0.0
       map_2d: cropped
-      node: WayPoint6
+      node: WayPoint2
+      recovery_behaviours_config: ''
+      top_vel: 0.55
+    - action: move_base
+      edge_id: WayPoint3_WayPoint4
+      inflation_radius: 0.0
+      map_2d: cropped
+      node: WayPoint4
       recovery_behaviours_config: ''
       top_vel: 0.55
     localise_by_topic: ''
     map: grape_route
-    name: WayPoint5
+    name: WayPoint3
     pointset: grape_route
     pose:
       orientation:
@@ -297,20 +205,27 @@
     yaw_goal_tolerance: 0.2
 - meta:
     map: grape_route
-    node: WayPoint6
+    node: WayPoint4
     pointset: grape_route
   node:
     edges:
     - action: move_base
-      edge_id: WayPoint6_WayPoint7
+      edge_id: WayPoint4_WayPoint3
       inflation_radius: 0.0
       map_2d: cropped
-      node: WayPoint7
+      node: WayPoint3
+      recovery_behaviours_config: ''
+      top_vel: 0.55
+    - action: move_base
+      edge_id: WayPoint4_WayPoint5
+      inflation_radius: 0.0
+      map_2d: cropped
+      node: WayPoint5
       recovery_behaviours_config: ''
       top_vel: 0.55
     localise_by_topic: ''
     map: grape_route
-    name: WayPoint6
+    name: WayPoint4
     pointset: grape_route
     pose:
       orientation:
@@ -343,112 +258,27 @@
     yaw_goal_tolerance: 0.2
 - meta:
     map: grape_route
-    node: WayPoint7
+    node: WayPoint5
     pointset: grape_route
   node:
     edges:
     - action: move_base
-      edge_id: WayPoint7_WayPoint8
+      edge_id: WayPoint5_WayPoint4
       inflation_radius: 0.0
       map_2d: cropped
-      node: WayPoint8
+      node: WayPoint4
       recovery_behaviours_config: ''
       top_vel: 0.55
-    localise_by_topic: ''
-    map: grape_route
-    name: WayPoint7
-    pointset: grape_route
-    pose:
-      orientation:
-        w: 0.0
-        x: 0.0
-        y: 0.0
-        z: 1.0
-      position:
-        x: -1.0
-        y: -10.5
-        z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477
-    xy_goal_tolerance: 0.3
-    yaw_goal_tolerance: 0.2
-- meta:
-    map: grape_route
-    node: WayPoint8
-    pointset: grape_route
-  node:
-    edges:
     - action: move_base
-      edge_id: WayPoint8_WayPoint9
+      edge_id: WayPoint5_WayPoint6
       inflation_radius: 0.0
       map_2d: cropped
-      node: WayPoint9
+      node: WayPoint6
       recovery_behaviours_config: ''
       top_vel: 0.55
     localise_by_topic: ''
     map: grape_route
-    name: WayPoint8
-    pointset: grape_route
-    pose:
-      orientation:
-        w: 0.0
-        x: 0.0
-        y: 0.0
-        z: 1.0
-      position:
-        x: -5.0
-        y: -10.5
-        z: 0.0
-    verts:
-    - x: 0.689999997616
-      y: 0.287000000477
-    - x: 0.287000000477
-      y: 0.689999997616
-    - x: -0.287000000477
-      y: 0.689999997616
-    - x: -0.689999997616
-      y: 0.287000000477
-    - x: -0.689999997616
-      y: -0.287000000477
-    - x: -0.287000000477
-      y: -0.689999997616
-    - x: 0.287000000477
-      y: -0.689999997616
-    - x: 0.689999997616
-      y: -0.287000000477
-    xy_goal_tolerance: 0.3
-    yaw_goal_tolerance: 0.2
-- meta:
-    map: grape_route
-    node: WayPoint9
-    pointset: grape_route
-  node:
-    edges:
-    - action: move_base
-      edge_id: WayPoint9_WayPointX
-      inflation_radius: 0.0
-      map_2d: cropped
-      node: WayPointX
-      recovery_behaviours_config: ''
-      top_vel: 0.55
-    localise_by_topic: ''
-    map: grape_route
-    name: WayPoint9
+    name: WayPoint5
     pointset: grape_route
     pose:
       orientation:
@@ -481,12 +311,26 @@
     yaw_goal_tolerance: 0.2
 - meta:
     map: grape_route
-    node: WayPointX
+    node: WayPoint6
     pointset: grape_route
   node:
     edges:
     - action: move_base
-      edge_id: WayPointX_WayPoint0
+      edge_id: WayPoint6_WayPoint5
+      inflation_radius: 0.0
+      map_2d: cropped
+      node: WayPoint5
+      recovery_behaviours_config: ''
+      top_vel: 0.55
+    - action: move_base
+      edge_id: WayPoint6_WayPoint1
+      inflation_radius: 0.0
+      map_2d: cropped
+      node: WayPoint1
+      recovery_behaviours_config: ''
+      top_vel: 0.55
+    - action: move_base
+      edge_id: WayPoint6_WayPoint0
       inflation_radius: 0.0
       map_2d: cropped
       node: WayPoint0
@@ -494,7 +338,7 @@
       top_vel: 0.55
     localise_by_topic: ''
     map: grape_route
-    name: WayPointX
+    name: WayPoint6
     pointset: grape_route
     pose:
       orientation:

@@ -46,7 +46,7 @@ t = Twist()
 r = rospy.Rate(10)
 
 i = 0
-goals = [[8.0, -3.0], [0.0, 0.0], [-8.0, -3.0]]
+goals = [[0.0, 0.0], [-8.0, -3.0], [5.0, -1.0]]
 
 while not rospy.is_shutdown():
 

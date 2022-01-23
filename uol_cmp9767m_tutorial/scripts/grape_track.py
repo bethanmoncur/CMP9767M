@@ -68,12 +68,13 @@ class grape_counter:
         if self.image_depth is None:
             return
 
-        if self.start_counting or self.reset_counting:
+        if self.start_counting:
         
             self.previous_count = self.count
             
             # get the time to enable transforms between the image frame and the map
             image_time = rospy.Time.now()
+            self.tf_listener.waitForTransform('map', 'thorvald_001/kinect2_right_rgb_optical_frame', image_time, rospy.Duration(4.0))
             
             # --- import the grapes image and depth and convert image to HSV ---
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
@@ -136,9 +137,9 @@ class grape_counter:
 		        depth_x = int(depth_coords[1])
 		        depth_y = int(depth_coords[0])
 		        if depth_x >= 512:
-		            depth_x = 511
+		            continue
 		        if depth_y >= 424:
-		            depth_y = 423
+		            continue
                         depth_value = cv_depth[depth_y, depth_x]
                         # print depth_value
                         # if depth of the centroid of the grape not detected, skip contour
@@ -153,12 +154,13 @@ class grape_counter:
                         camera_coords = [(i*depth_value)/camera_coords[2] for i in camera_coords]
                         # define the grape centroid in camera coordinates
                         grape_location = PointStamped()
-                        grape_location.header.frame_id = "thorvald_001/kinect2_right_depth_optical_frame"
+                        grape_location.header.frame_id = "thorvald_001/kinect2_right_rgb_optical_frame"
                         grape_location.header.stamp = image_time
                         grape_location.point.x = camera_coords[0]
                         grape_location.point.y = camera_coords[1]
                         grape_location.point.z = camera_coords[2]
-                        # transform the grape centroid from camera to map coordinates using tf and get its position 
+                        # transform the grape centroid from camera to map coordinates using tf and get its position
+                        self.tf_listener.waitForTransform('map', 'thorvald_001/kinect2_right_rgb_optical_frame', image_time, rospy.Duration(4.0)) 
                         grape_map_centroid = self.tf_listener.transformPoint('map', grape_location)
                         
                         # transform = self.tf_listener.lookupTransform('map', 'thorvald_001/kinect2_right_depth_optical_frame',image_time)
@@ -190,9 +192,9 @@ class grape_counter:
                         else:
                             for counted_grape in self.counted_grape_coords:
                                 # set a threshold for the closest distance to start counting the contour as a new grape
-                                proximity_threshold = 0.2
-                                # if the contour is within the threshold for x, y and z do not count it as a new grape
-                                if (abs(grape_map_coords[0] - counted_grape[0]) < proximity_threshold) and (abs(grape_map_coords[1] - counted_grape[1]) < proximity_threshold) and (abs(grape_map_coords[2] - counted_grape[2]) < proximity_threshold):
+                                proximity_threshold = 0.15
+                                # if the contour is within the threshold for x,and z do not count it as a new grape
+                                if (abs(grape_map_coords[0] - counted_grape[0]) < proximity_threshold) and (abs(grape_map_coords[2] - counted_grape[2]) < proximity_threshold):
                                     new_grape_detected = False
                         if new_grape_detected:
                             # add the grape coordinates to keep track of its location and increase count by 1
@@ -202,13 +204,20 @@ class grape_counter:
 
             print 'Number of grape bunches: ', self.count
             print 'Previous count: ', self.previous_count
-            # publish the number of grape bunches to the control node and reset the grape count
-            if self.reset_counting and self.previous_count == self.count:
-                self.grape_count_pub.publish(self.count)
+
+            # resume navigation once the count has been completed to avoid delay during camera to map transformation
+            if self.previous_count == self.count and self.found_grapes:
                 self.counting_status_pub.publish('counting complete')
-                self.count = 0
-                self.counted_grape_coords = []
-                self.reset_counting = False
+            
+        # publish the number of grape bunches to the control node and reset the grape count
+        if self.reset_counting:
+            self.grape_count_pub.publish(self.count)
+            self.count = 0
+            self.counted_grape_coords = []
+            # reinitialise point cloud visualisation
+            self.point_cloud = PointCloud()
+            self.reset_counting = False
+            self.counting_status_pub.publish('counting complete')
 
 	    # uncomment to display the colour mask, contours and detected grape bunches
             #cv2.imshow("Colour thresholding", closing)

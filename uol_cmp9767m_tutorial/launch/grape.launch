@@ -19,7 +19,7 @@
   <node name="grape_control" pkg="uol_cmp9767m_tutorial" type="grape_control.py" output="screen"/>
 
   <!-- Run the grape detection and counting file -->
-  <node name="grape_counter" pkg="uol_cmp9767m_tutorial" type="grape_track.py"/>
+  <node name="grape_counter" pkg="uol_cmp9767m_tutorial" type="grape_track.py" output="screen"/>
 
   <!-- Run the navigation goal setting file -->
   <node name="grape_topological_navigation" pkg="uol_cmp9767m_tutorial" type="set_grape_route_goal.py"/>

@@ -38,7 +38,9 @@ class grape_control:
 
     def resume_nav_callback(self, data):
         if 'counting complete' in str(data) or 'localisation complete' in str(data):
+            self.control_pub.publish('pause count')
             self.nav_pub.publish('resume navigation')
+            print 'pause counting grapes, resume navigation'
 
 
     def nav_callback(self, data):
@@ -53,13 +55,16 @@ class grape_control:
         
         print 'Current waypoint: ', self.current_waypoint
         print 'Waypoint reached: ', self.waypoint_reached
+
+        active_waypoints = ['WayPoint1', 'WayPoint2', 'WayPoint3', 'WayPoint4', 'WayPoint6', 'WayPoint7', 'WayPoint8', 'WayPoint9']
+        reset_waypoints = ['WayPoint5', 'WayPointX']
         
 
-        if self.current_waypoint == 'WayPoint1' or self.current_waypoint == 'WayPoint4':
+        if self.current_waypoint in active_waypoints:
             print 'start counting grapes'
             self.control_pub.publish('start count')
         
-        if self.current_waypoint == 'WayPoint2' or self.current_waypoint == 'WayPoint5':
+        if self.current_waypoint in reset_waypoints:
             print 'reset count'
             self.control_pub.publish('reset count')
 
