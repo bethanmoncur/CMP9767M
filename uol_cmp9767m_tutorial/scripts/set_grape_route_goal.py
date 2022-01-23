@@ -29,69 +29,74 @@ if __name__ == '__main__':
     client = actionlib.SimpleActionClient('/thorvald_001/topological_navigation', GotoNodeAction)
     client.wait_for_server()
 
-    while not resume_navigation:
-        rospy.Rate(1).sleep()
+    while not rospy.is_shutdown():
 
-    # send first goal
-    goal = GotoNodeGoal()
-    goal.target = "WayPoint1"
-    client.send_goal(goal)
-    status = client.wait_for_result() # wait until the action is complete
-    result = client.get_result()
-    rospy.loginfo("status is %s", status)
-    rospy.loginfo("result is %s", result)
-    pub.publish(str(goal.target) + str(',') + str(result))
+        while not resume_navigation:
+            rospy.Rate(1).sleep()
 
-    # send second goal
-    goal.target = "WayPoint2"
-    # Fill in the goal here
-    client.send_goal(goal)
-    status = client.wait_for_result() # wait until the action is complete
-    result = client.get_result()
-    rospy.loginfo("status is %s", status)
-    rospy.loginfo("result is %s", result)
-    pub.publish(str(goal.target) + str(',') + str(result))
-    resume_navigation = False
-    rospy.loginfo("navigation paused")
+        rospy.loginfo("navigation resumed")
+        # send first goal
+        goal = GotoNodeGoal()
+        goal.target = "WayPoint1"
+        client.send_goal(goal)
+        status = client.wait_for_result() # wait until the action is complete
+        result = client.get_result()
+        rospy.loginfo("status is %s", status)
+        rospy.loginfo("result is %s", result)
+        pub.publish(str(goal.target) + str(',') + str(result))
 
-    while not resume_navigation:
-        rospy.Rate(1).sleep()
+        # send second goal
+        goal.target = "WayPoint2"
+        # Fill in the goal here
+        client.send_goal(goal)
+        status = client.wait_for_result() # wait until the action is complete
+        result = client.get_result()
+        rospy.loginfo("status is %s", status)
+        rospy.loginfo("result is %s", result)
+        pub.publish(str(goal.target) + str(',') + str(result))
+        resume_navigation = False
+        rospy.loginfo("navigation paused")
+    
+        while not resume_navigation:
+            rospy.Rate(1).sleep()
+    
+        rospy.loginfo("navigation resumed")
+        # send third goal
+        goal.target = "WayPoint4"
+        # Fill in the goal here
+        client.send_goal(goal)
+        status = client.wait_for_result() # wait until the action is complete
+        result = client.get_result()
+        rospy.loginfo("status is %s", status)
+        rospy.loginfo("result is %s", result)
+        pub.publish(str(goal.target) + str(',') + str(result))
 
-    rospy.loginfo("navigation resumed")
-    # send third goal
-    goal.target = "WayPoint4"
-    # Fill in the goal here
-    client.send_goal(goal)
-    status = client.wait_for_result() # wait until the action is complete
-    result = client.get_result()
-    rospy.loginfo("status is %s", status)
-    rospy.loginfo("result is %s", result)
-    pub.publish(str(goal.target) + str(',') + str(result))
-
-    # send fourth goal
-    goal.target = "WayPoint5"
-    # Fill in the goal here
-    client.send_goal(goal)
-    status = client.wait_for_result() # wait until the action is complete
-    result = client.get_result()
-    rospy.loginfo("status is %s", status)
-    rospy.loginfo("result is %s", result)
-    pub.publish(str(goal.target) + str(',') + str(result))
-    resume_navigation = False
-    rospy.loginfo("navigation paused")
-
-    while not resume_navigation:
-        rospy.Rate(1).sleep()
-
-    rospy.loginfo("navigation resumed")
-    # send fifth goal
-    goal.target = "WayPoint0"
-    # Fill in the goal here
-    client.send_goal(goal)
-    status = client.wait_for_result() # wait until the action is complete
-    result = client.get_result()
-    rospy.loginfo("status is %s", status)
-    rospy.loginfo("result is %s", result)
-    pub.publish(str(goal.target) + str(',') + str(result))
+        # send fourth goal
+        goal.target = "WayPoint5"
+        # Fill in the goal here
+        client.send_goal(goal)
+        status = client.wait_for_result() # wait until the action is complete
+        result = client.get_result()
+        rospy.loginfo("status is %s", status)
+        rospy.loginfo("result is %s", result)
+        pub.publish(str(goal.target) + str(',') + str(result))
+        resume_navigation = False
+        rospy.loginfo("navigation paused")
+    
+        while not resume_navigation:
+            rospy.Rate(1).sleep()
+    
+        rospy.loginfo("navigation resumed")
+        # send fifth goal
+        goal.target = "WayPoint0"
+        # Fill in the goal here
+        client.send_goal(goal)
+        status = client.wait_for_result() # wait until the action is complete
+        result = client.get_result()
+        rospy.loginfo("status is %s", status)
+        rospy.loginfo("result is %s", result)
+        pub.publish(str(goal.target) + str(',') + str(result))
+        resume_navigation = False
+        rospy.loginfo("navigation paused")
 
 

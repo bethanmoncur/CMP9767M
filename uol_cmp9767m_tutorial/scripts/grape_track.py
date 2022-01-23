@@ -5,9 +5,9 @@ import numpy as np
 
 import sys, time
 import rospy, roslib, image_geometry, tf
-from sensor_msgs.msg import Image, CameraInfo
-from geometry_msgs.msg import PoseStamped
-from std_msgs.msg import String, Int32
+from sensor_msgs.msg import Image, CameraInfo, PointCloud
+from geometry_msgs.msg import PoseStamped, Point32, PointStamped
+from std_msgs.msg import String, Int32, Header
 from cv_bridge import CvBridge, CvBridgeError
 
 
@@ -22,9 +22,12 @@ class grape_counter:
         self.camera_info_sub = rospy.Subscriber('/thorvald_001/kinect2_right_camera/hd/camera_info', CameraInfo, self.camera_info_callback)
         self.depth_sub = rospy.Subscriber("/thorvald_001/kinect2_right_sensor/sd/image_depth_rect", Image, self.image_depth_callback)
         self.tf_listener = tf.TransformListener()
-        # self.grape_location_pub = rospy.Publisher('/thorvald_001/grape_location', Image, queue_size=10)
+        self.grape_location_pub = rospy.Publisher('/thorvald_001/grape_location', Image, queue_size=10)
         self.grape_count_pub = rospy.Publisher('grape_count', Int32, queue_size=30)
         self.counting_status_pub = rospy.Publisher('counting_status', String, queue_size=10)
+        # visualise the grape centroids as a point cloud
+        self.point_pub = rospy.Publisher('/thorvald_001/grape_visualisation', PointCloud, queue_size=10, latch='true')
+        self.point_cloud = PointCloud()
         # initialise variables 
         self.camera_model = None
         self.image_depth = None
@@ -66,11 +69,16 @@ class grape_counter:
             return
 
         if self.start_counting or self.reset_counting:
+        
             self.previous_count = self.count
+            
+            # get the time to enable transforms between the image frame and the map
+            image_time = rospy.Time.now()
+            
             # --- import the grapes image and depth and convert image to HSV ---
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
             cv_depth = self.bridge.imgmsg_to_cv2(self.image_depth, "32FC1")
-	    # apply blur to image
+	    # apply blur to bgr image
             frame = cv2.blur(cv_image, (7, 7))
 	    # convert BGR to HSV for filtering
 	    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -105,6 +113,7 @@ class grape_counter:
 	            if cv2.contourArea(contour) >= min_area:
 		        self.found_grapes = True
 		        grape_contour = contour
+		        contour_time = rospy.Time.now()
 		        # get the coordinates of the grape centre
 		        M = cv2.moments(grape_contour)
 		        cx = int(M['m10'] / M['m00'])
@@ -113,7 +122,7 @@ class grape_counter:
 		        # plot the grape centre point
 		        cv2.circle(image_rgb, (cx, cy), 4, (0, 0, 255), -1)
                         # publish the grape location so it can be viewed in rviz
-                        # self.grape_location_pub.publish(self.bridge.cv2_to_imgmsg(image_rgb))
+                        self.grape_location_pub.publish(self.bridge.cv2_to_imgmsg(image_rgb))
 		    
 		        # --- find depth of grape centre ---
 		        # ratio between cameras calculated as (color_horizontal_FOV/color_width) / (depth_horizontal_FOV/depth_width) from the kinectv2 urdf file
@@ -132,9 +141,10 @@ class grape_counter:
 		            depth_y = 423
                         depth_value = cv_depth[depth_y, depth_x]
                         # print depth_value
-                        # if centroid of grape not detected, set depth value to 3
+                        # if depth of the centroid of the grape not detected, skip contour
                         if np.isnan(depth_value):
-                            depth_value = 3
+                            # depth_value = 3
+                            continue
                         
                         # --- image to world re-projection ---
                         #project the image coords (x,y) into 3D ray in camera coords
@@ -142,20 +152,31 @@ class grape_counter:
                         # normalize the vector by z (camera_coords[2]) and then multiply by depth  
                         camera_coords = [(i*depth_value)/camera_coords[2] for i in camera_coords]
                         # define the grape centroid in camera coordinates
-                        grape_location = PoseStamped()
-                        grape_location.header.frame_id = "thorvald_001/kinect2_right_rgb_optical_frame"
-                        grape_location.pose.orientation.w = 1.0
-                        grape_location.pose.position.x = camera_coords[0]
-                        grape_location.pose.position.y = camera_coords[1]
-                        grape_location.pose.position.z = camera_coords[2]
+                        grape_location = PointStamped()
+                        grape_location.header.frame_id = "thorvald_001/kinect2_right_depth_optical_frame"
+                        grape_location.header.stamp = image_time
+                        grape_location.point.x = camera_coords[0]
+                        grape_location.point.y = camera_coords[1]
+                        grape_location.point.z = camera_coords[2]
                         # transform the grape centroid from camera to map coordinates using tf and get its position 
-                        grape_map_centroid = self.tf_listener.transformPose('map', grape_location)
+                        grape_map_centroid = self.tf_listener.transformPoint('map', grape_location)
+                        
+                        # transform = self.tf_listener.lookupTransform('map', 'thorvald_001/kinect2_right_depth_optical_frame',image_time)
+                        # print transform
+                        
+                        # visualise the grape centroid on rviz as a point cloud
+                        header = Header()
+                        header.stamp = image_time
+                        header.frame_id = 'map'
+                        self.point_cloud.header = header
+                        self.point_cloud.points.append(Point32(grape_map_centroid.point.x, grape_map_centroid.point.y, grape_map_centroid.point.z))
+                        self.point_pub.publish(self.point_cloud)
                     
                         # --- avoiding double counting of grape bunches ---
-                        # round the coordinates to 1dp to check if it has already been counted
-                        grape_map_x = round(grape_map_centroid.pose.position.x, 3)
-                        grape_map_y = round(grape_map_centroid.pose.position.y, 3)
-                        grape_map_z = round(grape_map_centroid.pose.position.z, 3)
+                        # round the coordinates to 1dp to improve readability during testing
+                        grape_map_x = round(grape_map_centroid.point.x, 3)
+                        grape_map_y = round(grape_map_centroid.point.y, 3)
+                        grape_map_z = round(grape_map_centroid.point.z, 3)
                         grape_map_coords = [grape_map_x, grape_map_y, grape_map_z]
 
                         # check if the grape has already been counted and if not, increase count by 1
@@ -169,7 +190,7 @@ class grape_counter:
                         else:
                             for counted_grape in self.counted_grape_coords:
                                 # set a threshold for the closest distance to start counting the contour as a new grape
-                                proximity_threshold = 0.15
+                                proximity_threshold = 0.2
                                 # if the contour is within the threshold for x, y and z do not count it as a new grape
                                 if (abs(grape_map_coords[0] - counted_grape[0]) < proximity_threshold) and (abs(grape_map_coords[1] - counted_grape[1]) < proximity_threshold) and (abs(grape_map_coords[2] - counted_grape[2]) < proximity_threshold):
                                     new_grape_detected = False

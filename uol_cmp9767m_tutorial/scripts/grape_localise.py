@@ -30,7 +30,16 @@ odom_sub = rospy.Subscriber('/thorvald_001/odometry/base_raw', Odometry, new_odo
 vel_pub = rospy.Publisher('/thorvald_001/twist_mux/cmd_vel', Twist, queue_size = 1)
 localise_pub = rospy.Publisher('localisation_complete', String, queue_size = 1)
 global_localization = rospy.ServiceProxy('global_localization', Empty)
-global_localization()
+
+
+start_input = raw_input('Does the robot need localising? [y/n] \n')
+    
+if start_input == 'n':
+    localise_pub.publish('localisation complete')
+    quit()
+    
+else:
+    global_localization()
 
 t = Twist()
 
@@ -40,6 +49,7 @@ i = 0
 goals = [[8.0, -3.0], [0.0, 0.0], [-8.0, -3.0]]
 
 while not rospy.is_shutdown():
+
 
     goal = Point()
     goal.x = goals[i][0]
