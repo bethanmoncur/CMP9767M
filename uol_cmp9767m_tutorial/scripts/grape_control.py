@@ -39,6 +39,7 @@ class grape_control:
     def resume_nav_callback(self, data):
         if 'counting complete' in str(data) or 'localisation complete' in str(data):
             self.control_pub.publish('pause count')
+            rospy.sleep(1.5)
             self.nav_pub.publish('resume navigation')
             print 'pause counting grapes, resume navigation'
 
@@ -61,7 +62,7 @@ class grape_control:
         
 
         if self.current_waypoint in active_waypoints:
-            rospy.sleep(1.5)
+            rospy.sleep(3.0)
             print 'start counting grapes'
             self.control_pub.publish('start count')
         

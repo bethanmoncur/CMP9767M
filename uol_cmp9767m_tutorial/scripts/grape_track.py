@@ -68,10 +68,7 @@ class grape_counter:
         if self.image_depth is None:
             return
             
-        if (self.start_counting == False and self.reset_counting) == False):
-            return
-
-        elif self.start_counting:
+        if self.start_counting:
         
             self.previous_count = self.count
             
@@ -139,9 +136,8 @@ class grape_counter:
 		        # print(depth_coords)
 		        depth_x = int(depth_coords[1])
 		        depth_y = int(depth_coords[0])
-		        if depth_x >= 512:
-		            continue
-		        if depth_y >= 424:
+		        if depth_x >= 512 or depth_y >= 424:
+                            print 'Out of range'
 		            continue
                         depth_value = cv_depth[depth_y, depth_x]
                         # print depth_value
