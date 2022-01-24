@@ -268,10 +268,10 @@
     pointset: grape_route
     pose:
       orientation:
-        w: 1.0
+        w: -0.7071
         x: 0.0
         y: 0.0
-        z: 0.0
+        z: 0.7071
       position:
         x: 5.5
         y: -7.5
@@ -498,12 +498,12 @@
     pointset: grape_route
     pose:
       orientation:
-        w: 0.0
+        w: 0.7071
         x: 0.0
         y: 0.0
-        z: 1.0
+        z: 0.07071
       position:
-        x: -11.5
+        x: -11.0
         y: -7.5
         z: 0.0
     verts:

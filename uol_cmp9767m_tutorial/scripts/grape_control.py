@@ -61,6 +61,7 @@ class grape_control:
         
 
         if self.current_waypoint in active_waypoints:
+            rospy.sleep(1.5)
             print 'start counting grapes'
             self.control_pub.publish('start count')
         

@@ -67,8 +67,11 @@ class grape_counter:
 
         if self.image_depth is None:
             return
+            
+        if (self.start_counting == False and self.reset_counting) == False):
+            return
 
-        if self.start_counting:
+        elif self.start_counting:
         
             self.previous_count = self.count
             
@@ -192,7 +195,7 @@ class grape_counter:
                         else:
                             for counted_grape in self.counted_grape_coords:
                                 # set a threshold for the closest distance to start counting the contour as a new grape
-                                proximity_threshold = 0.15
+                                proximity_threshold = 0.08
                                 # if the contour is within the threshold for x,and z do not count it as a new grape
                                 if (abs(grape_map_coords[0] - counted_grape[0]) < proximity_threshold) and (abs(grape_map_coords[2] - counted_grape[2]) < proximity_threshold):
                                     new_grape_detected = False
@@ -206,7 +209,7 @@ class grape_counter:
             print 'Previous count: ', self.previous_count
 
             # resume navigation once the count has been completed to avoid delay during camera to map transformation
-            if self.previous_count == self.count and self.found_grapes:
+            if self.previous_count == self.count:
                 self.counting_status_pub.publish('counting complete')
             
         # publish the number of grape bunches to the control node and reset the grape count
