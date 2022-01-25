@@ -23,6 +23,7 @@ class grape_counter:
         self.depth_sub = rospy.Subscriber("/thorvald_001/kinect2_right_sensor/sd/image_depth_rect", Image, self.image_depth_callback)
         self.tf_listener = tf.TransformListener()
         self.grape_location_pub = rospy.Publisher('/thorvald_001/grape_location', Image, queue_size=10)
+        self.grape_contours_pub = rospy.Publisher('/thorvald_001/grape_contours', Image, queue_size=10)
         self.grape_count_pub = rospy.Publisher('grape_count', Int32, queue_size=30)
         self.counting_status_pub = rospy.Publisher('counting_status', String, queue_size=10)
         # visualise the grape centroids as a point cloud
@@ -80,7 +81,7 @@ class grape_counter:
             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
             cv_depth = self.bridge.imgmsg_to_cv2(self.image_depth, "32FC1")
 	    # apply blur to bgr image
-            frame = cv2.blur(cv_image, (7, 7))
+            frame = cv2.blur(cv_image, (3, 3))
 	    # convert BGR to HSV for filtering
 	    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
@@ -98,12 +99,13 @@ class grape_counter:
 
 	    # --- grape detection ---
 	    # establish minimum area for a grape bunch
-	    min_area = 100
-	    # convert from BGR to RGB for plotting
-	    image_rgb = cv2.cvtColor(cv_image, cv2.COLOR_BGR2RGB)
+	    min_area = 50
+            # image for visualisation
+            image_bgr = cv_image
 	    # get the contours using the mask from colour filtering
 	    contours, hierarchy = cv2.findContours(mask_inv, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)[-2:]
-	    cv2.drawContours(cv_image, contours, -1, (0, 0, 255), 1)
+	    cv2.drawContours(closing, contours, -1, (0, 0, 255), 1)
+            self.grape_contours_pub.publish(self.bridge.cv2_to_imgmsg(closing))
 
 	    # --- grape bunch counting ---
 	    # iterate through the list of contours
@@ -121,9 +123,9 @@ class grape_counter:
 		        cy = int(M['m01'] / M['m00'])
 		        image_coords = (cy, cx)
 		        # plot the grape centre point
-		        cv2.circle(image_rgb, (cx, cy), 4, (0, 0, 255), -1)
+		        cv2.circle(image_bgr, (cx, cy), 4, (0, 0, 255), -1)
                         # publish the grape location so it can be viewed in rviz
-                        self.grape_location_pub.publish(self.bridge.cv2_to_imgmsg(image_rgb))
+                        self.grape_location_pub.publish(self.bridge.cv2_to_imgmsg(image_bgr))
 		    
 		        # --- find depth of grape centre ---
 		        # ratio between cameras calculated as (color_horizontal_FOV/color_width) / (depth_horizontal_FOV/depth_width) from the kinectv2 urdf file
@@ -221,7 +223,7 @@ class grape_counter:
 	    # uncomment to display the colour mask, contours and detected grape bunches
             #cv2.imshow("Colour thresholding", closing)
             #cv2.imshow("Contours", cv_image)
-            #cv2.imshow("Results", image_rgb)
+            #cv2.imshow("Results", image_bgr)
 	    #cv2.waitKey(0)
 
 
