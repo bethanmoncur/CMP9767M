@@ -4,6 +4,16 @@
 
 The system loads a map already created using Gmapping (http://wiki.ros.org/gmapping). Thorvald_001 orientates itself using adaptive Monte Carlo localisation (http://wiki.ros.org/amcl) whilst moving using odometry-based targets. The system then utilises topological navigation (http://wiki.ros.org/topological_navigation) – at each topological node, it performs colour thresholding and contour detection to detect grape bunches (https://opencv.org/). To avoid double counting, the centroid of the grape bunch contour is converted to map coordinates using tf (http://wiki.ros.org/tf) and stored in a list, which is checked for proximity to each subsequent grape contour. At the end of the grape row, the count is reset and the counting process is repeated on the other side of the row to obtain an average.
 
+## Key files
+* `uol_cmp9767m_tutorial/scripts/grape_control.py` - script for the control node of the system
+* `uol_cmp9767m_tutorial/scripts/grape_localise.py` - script for amcl localisation process at the start
+* `uol_cmp9767m_tutorial/scripts/grape_track.py` - script to perform image analysis and grape counting
+* `uol_cmp9767m_tutorial/scripts/set_grape_route_goal.py` - script to send topological navigation goals for the robot
+
+* `uol_cmp9767m_tutorial/maps/grape_route.yaml`- map to define the topological nodes and edges
+
+* `uol_cmp9767m_tutorial/launch/grape.launch` - launch file to launch the simulation and nodes
+
 ## How to start the system
 
 * Boot in Ubuntu 18.04
