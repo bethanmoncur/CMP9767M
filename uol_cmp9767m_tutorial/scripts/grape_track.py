@@ -49,7 +49,6 @@ class grape_counter:
 
     # function to get commands from the control node to begin, pause or reset counting
     def control_callback(self, data):
-        print str(data)
         if 'start count' in str(data):
             self.start_counting = True
         else:

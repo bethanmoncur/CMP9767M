@@ -8,7 +8,6 @@ project(uol_cmp9767m_tutorial)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-## For DoDishesAction: uncomment the following lines
   genmsg
   actionlib_msgs
   actionlib
@@ -71,28 +70,20 @@ find_package(catkin REQUIRED COMPONENTS
 #   Service2.srv
 # )
 
-add_service_files(
-  FILES
-  AddTwoInts.srv
-)
 
 ## Generate actions in the 'action' folder
-## For DoDishesAction: uncomment the following lines
- add_action_files(
-   DIRECTORY
-   action
-   FILES
-   DoDishes.action
- )
+# add_action_files(
+#   DIRECTORY
+#   action
+#   FILES
+#   Action1.action
+# )
 
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
   std_msgs
-## For DoDishesAction: uncomment the following line
- actionlib_msgs
 )
-
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
 ################################################
