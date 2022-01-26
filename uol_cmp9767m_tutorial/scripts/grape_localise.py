@@ -37,9 +37,10 @@ start_input = raw_input('Does the robot need localising? [y/n] \n')
 if start_input == 'n':
     localise_pub.publish('localisation complete')
     quit()
-    
-else:
-    global_localization()
+
+# comment out to speed up initial localisation if using an accurate initial pose estimate for amcl    
+#else:
+    #global_localization()
 
 t = Twist()
 
