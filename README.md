@@ -147,7 +147,7 @@ rosrun uol_cmp9767m_tutorial grape_localise.py
     
 * When the script asks: `Does the robot need localising? [y/n]` type `n` followed by `enter` because Thorvald_001 will still be localised.
 
-To get the grape count separate to the system status updates, subscribe to the `/grape_count topic` in a new terminal window. This publishes the number of grapes from the current run down the row (not the average).
+To get the grape count separate to the system status updates, subscribe to the `/grape_count` topic in a new terminal window. This publishes the number of grapes from the current run down the row (not the average).
 
 ```
 rostopic echo /grape_count
