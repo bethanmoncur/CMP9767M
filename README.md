@@ -104,7 +104,7 @@ The system loads a map already created using Gmapping (http://wiki.ros.org/gmapp
     roslaunch uol_cmp9767m_tutorial grape.launch
     ```
     
-* In a new terminal, and navigate to the catkin workspace. Source the workspace and load the map file:
+* In a new terminal, navigate to the catkin workspace. Source the workspace and load the map file:
     ```
     source devel/setup.bash
     ```
